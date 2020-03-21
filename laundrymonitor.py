@@ -1,5 +1,6 @@
 #import what we need
 import datetime
+import importlib
 
 #constants
 SecondsBetweenChecks = 60
@@ -14,6 +15,23 @@ lightFirstNoticed = datetime.MINYEAR
 def Main():
     "This is the main execution of the Laundry Monitor. Its an infinite loop."
     #TODO import pushover credentials from outside file. 
+    try:
+        importlib.import_module("pushovercredentials")
+    except:
+        poCredsFile= open("pushovercredentials.py","w+")
+        poCredsFile.write("global PUSHOVERAPITOKEN\r\n")
+        poCredsFile.write("global PUSHOVERUSERKEY\r\n")
+        poCredsFile.write("PUSHOVERAPITOKEN = \"\"\r\n")
+        poCredsFile.write("PUSHOVERUSERKEY = \"\"\r\n")
+        poCredsFile.close()
+        print("Pushover credentials file didn't exist, please fill in.")
+        return;
+    
+    #Our credentials file might exits, but it might not be populated. 
+    if(len(PUSHOVERAPITOKEN) == 0 or len(PUSHOVERUSERKEY) == 0):
+        print("Pushover credentials are empty")
+        return
+
     while(1):
         MonitorTheWashingMachine()
         MonitorTheDryer()
@@ -62,3 +80,6 @@ def SendNofitication( message ):
         conn.getresponse()
     return;
         
+
+# excution
+Main()
