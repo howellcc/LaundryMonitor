@@ -47,8 +47,17 @@ def Main():
 
 def MonitorTheWashingMachine():
     "This function monitors the washing machine."
-    if(PREVIOUSLIGHTSTATE == False and IsWasherDone()):
+
+    global LIGHTFIRSTNOTICED
+    global PREVIOUSLIGHTSTATE
+
+    currentLightState = IsWasherDone()
+    if(PREVIOUSLIGHTSTATE == False and currentLightState):
         SendNofitication("Washer is Done!!!")
+        LIGHTFIRSTNOTICED = datetime.datetime.now
+    #else if()
+    #TODO HERE
+    PREVIOUSLIGHTSTATE = currentLightState
     return;
 
 def MonitorTheDryer():
@@ -96,9 +105,9 @@ def IsWasherDone():
     #print("Infrared Value :%d lux", ch1)
     #print("Visible Value :%d lux", (ch0 - ch1))
 
-
-    currentLightState = True
-    previousLightState = currentLightState
+    currentLightState = False
+    if(ch0 > 2):
+        currentLightState = True
     return currentLightState;
 
 def IsDryerDone():
