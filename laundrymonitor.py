@@ -1,6 +1,6 @@
 #import what we need
 import datetime
-import importlib
+import json
 
 #constants
 SecondsBetweenChecks = 60
@@ -14,15 +14,18 @@ lightFirstNoticed = datetime.MINYEAR
 
 def Main():
     "This is the main execution of the Laundry Monitor. Its an infinite loop."
-    #TODO import pushover credentials from outside file. 
+    global PUSHOVERAPITOKEN
+    global PUSHOVERUSERKEY
+    
+    #import pushover credentials from outside file. 
     try:
-        importlib.import_module("pushovercredentials")
+        with open('pushovercredentials.json') as f:
+            d = json.load(f)
+            PUSHOVERUSERKEY = d["PUSHOVERUSERKEY"]
+            PUSHOVERAPITOKEN = d["PUSHOVERAPITOKEN"]
     except:
-        poCredsFile= open("pushovercredentials.py","w+")
-        poCredsFile.write("global PUSHOVERAPITOKEN\r\n")
-        poCredsFile.write("global PUSHOVERUSERKEY\r\n")
-        poCredsFile.write("PUSHOVERAPITOKEN = \"\"\r\n")
-        poCredsFile.write("PUSHOVERUSERKEY = \"\"\r\n")
+        poCredsFile= open("pushovercredentials.json","w+")
+        poCredsFile.write("{\r\n    \"PUSHOVERUSERKEY\":\"\",\r\n    \"PUSHOVERAPITOKEN\": \"\"\r\n}")
         poCredsFile.close()
         print("Pushover credentials file didn't exist, please fill in.")
         return;
@@ -31,7 +34,8 @@ def Main():
     if(len(PUSHOVERAPITOKEN) == 0 or len(PUSHOVERUSERKEY) == 0):
         print("Pushover credentials are empty")
         return
-
+    print("Hurray!")
+    return
     while(1):
         MonitorTheWashingMachine()
         MonitorTheDryer()
