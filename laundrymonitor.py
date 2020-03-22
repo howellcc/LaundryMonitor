@@ -1,30 +1,32 @@
 #import what we need
 import datetime
 import json
+import smbus
 
-#constants
-SecondsBetweenChecks = 60
+#GLOBALS
+SECONDSBETWEENCHECKS = 60
 PUSHOVERAPITOKEN = ""
 PUSHOVERUSERKEY = ""
-
-#globals
-previousLightState = True
-lightFirstNoticed = datetime.MINYEAR
+PREVIOUSLIGHTSTATE = True
+LIGHTFIRSTNOTICED = datetime.MINYEAR
 
 
 def Main():
     "This is the main execution of the Laundry Monitor. Its an infinite loop."
     global PUSHOVERAPITOKEN
     global PUSHOVERUSERKEY
+    global SECONDSBETWEENCHECKS
     
     #import pushover credentials from outside file. 
     try:
+        #read json file and load credentials
         with open('pushovercredentials.json') as f:
             d = json.load(f)
             PUSHOVERUSERKEY = d["PUSHOVERUSERKEY"]
             PUSHOVERAPITOKEN = d["PUSHOVERAPITOKEN"]
     except:
-        poCredsFile= open("pushovercredentials.json","w+")
+        #load failed, likely because the file didn't exist. Create it so it can be filled.
+        poCredsFile = open("pushovercredentials.json","w+")
         poCredsFile.write("{\r\n    \"PUSHOVERUSERKEY\":\"\",\r\n    \"PUSHOVERAPITOKEN\": \"\"\r\n}")
         poCredsFile.close()
         print("Pushover credentials file didn't exist, please fill in.")
@@ -34,18 +36,18 @@ def Main():
     if(len(PUSHOVERAPITOKEN) == 0 or len(PUSHOVERUSERKEY) == 0):
         print("Pushover credentials are empty")
         return
-    print("Hurray!")
-    return
+
+    #Time to get down to business
     while(1):
         MonitorTheWashingMachine()
         MonitorTheDryer()
-        time.sleep(SecondsBetweenChecks)
+        time.sleep(SECONDSBETWEENCHECKS)
     return;
 
 
 def MonitorTheWashingMachine():
     "This function monitors the washing machine."
-    if(previousLightState == False and IsWasherDone()):
+    if(PREVIOUSLIGHTSTATE == False and IsWasherDone()):
         SendNofitication("Washer is Done!!!")
     return;
 
@@ -61,7 +63,40 @@ def MonitorTheDryer():
 
 def IsWasherDone():
     "Checks the light"
-    #TODO check the light
+    #check the light
+
+    # Get I2C bus
+    bus = smbus.SMBus(1)
+
+    # TSL2561 address, 0x39(57)
+    # Select control register, 0x00(00) with command register, 0x80(128)
+    #		0x03(03)	Power ON mode
+    bus.write_byte_data(0x39, 0x00 | 0x80, 0x03)
+    # TSL2561 address, 0x39(57)
+    # Select timing register, 0x01(01) with command register, 0x80(128)
+    #		0x02(02)	Nominal integration time = 402ms
+    bus.write_byte_data(0x39, 0x01 | 0x80, 0x02)
+
+    time.sleep(0.5)
+
+    # Read data back from 0x0C(12) with command register, 0x80(128), 2 bytes
+    # ch0 LSB, ch0 MSB
+    data = bus.read_i2c_block_data(0x39, 0x0C | 0x80, 2)
+
+    # Read data back from 0x0E(14) with command register, 0x80(128), 2 bytes
+    # ch1 LSB, ch1 MSB
+    data1 = bus.read_i2c_block_data(0x39, 0x0E | 0x80, 2)
+
+    # Convert the data
+    ch0 = data[1] * 256 + data[0]
+    ch1 = data1[1] * 256 + data1[0]
+
+    # Output data to screen
+    #print("Full Spectrum(IR + Visible) :%d lux", ch0)
+    #print("Infrared Value :%d lux", ch1)
+    #print("Visible Value :%d lux", (ch0 - ch1))
+
+
     currentLightState = True
     previousLightState = currentLightState
     return currentLightState;
