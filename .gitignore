@@ -131,3 +131,4 @@ dmypy.json
 # my stuff
 pushovercredentials.py
 pushovercredentials.json
+nohup.out

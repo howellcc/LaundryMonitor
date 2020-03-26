@@ -1,4 +1,5 @@
 #import what we need
+import time
 import datetime
 import json
 import smbus
