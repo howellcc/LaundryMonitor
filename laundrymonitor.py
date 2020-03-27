@@ -3,12 +3,13 @@ import time
 import datetime
 import json
 import smbus
+import http.client, urllib
 
 #GLOBALS
-SECONDSBETWEENCHECKS = 60
+SECONDSBETWEENCHECKS = 10
 PUSHOVERAPITOKEN = ""
 PUSHOVERUSERKEY = ""
-PREVIOUSLIGHTSTATE = True
+PREVIOUSLIGHTSTATE = False
 LIGHTFIRSTNOTICED = datetime.MINYEAR
 
 
@@ -48,12 +49,15 @@ def Main():
 
 def MonitorTheWashingMachine():
     "This function monitors the washing machine."
-
+    #print("Monitor the Washing Machine")
     global LIGHTFIRSTNOTICED
     global PREVIOUSLIGHTSTATE
 
     currentLightState = IsWasherDone()
+    #print("previous light state: ",PREVIOUSLIGHTSTATE)
+    #print("current light state: ",currentLightState)
     if(PREVIOUSLIGHTSTATE == False and currentLightState):
+        #print("I should notify")
         SendNofitication("Washer is Done!!!")
         LIGHTFIRSTNOTICED = datetime.datetime.now
     #else if()
@@ -127,6 +131,7 @@ def SendNofitication( message ):
             "message": message,
         }), { "Content-type": "application/x-www-form-urlencoded" })
         conn.getresponse()
+        #print("notification sent")
     return;
         
 
