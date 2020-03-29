@@ -103,6 +103,9 @@ def IsWasherDone():
     # ch1 LSB, ch1 MSB
     data1 = bus.read_i2c_block_data(0x39, 0x0E | 0x80, 2)
 
+    # close the bus
+    bus.close()
+
     # Convert the data
     ch0 = data[1] * 256 + data[0]
     ch1 = data1[1] * 256 + data1[0]
