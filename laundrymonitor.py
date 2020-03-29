@@ -4,6 +4,7 @@ import datetime
 import json
 import smbus
 import http.client, urllib
+import inspect, os
 
 #GLOBALS
 SECONDSBETWEENCHECKS = 10
@@ -19,16 +20,17 @@ def Main():
     global PUSHOVERUSERKEY
     global SECONDSBETWEENCHECKS
     
+    settingsFile = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + "/pushovercredentials.json"
     #import pushover credentials from outside file. 
     try:
         #read json file and load credentials
-        with open('pushovercredentials.json') as f:
+        with open(settingsFile) as f:
             d = json.load(f)
             PUSHOVERUSERKEY = d["PUSHOVERUSERKEY"]
             PUSHOVERAPITOKEN = d["PUSHOVERAPITOKEN"]
     except:
         #load failed, likely because the file didn't exist. Create it so it can be filled.
-        poCredsFile = open("pushovercredentials.json","w+")
+        poCredsFile = open(settingsFile,"w+")
         poCredsFile.write("{\r\n    \"PUSHOVERUSERKEY\":\"\",\r\n    \"PUSHOVERAPITOKEN\": \"\"\r\n}")
         poCredsFile.close()
         print("Pushover credentials file didn't exist, please fill in.")
