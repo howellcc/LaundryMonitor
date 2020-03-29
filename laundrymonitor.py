@@ -8,6 +8,7 @@ import inspect, os
 
 #GLOBALS
 SECONDSBETWEENCHECKS = 10
+LIGHTSENSORTHRESHOLD = 50
 PUSHOVERAPITOKEN = ""
 PUSHOVERUSERKEY = ""
 PREVIOUSLIGHTSTATE = False
@@ -115,8 +116,9 @@ def IsWasherDone():
     #print("Infrared Value :%d lux", ch1)
     #print("Visible Value :%d lux", (ch0 - ch1))
 
+    global LIGHTSENSORTHRESHOLD
     currentLightState = False
-    if(ch0 > 2):
+    if(ch0 > LIGHTSENSORTHRESHOLD):
         currentLightState = True
     return currentLightState;
 
