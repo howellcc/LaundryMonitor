@@ -11,5 +11,6 @@ conn.request("POST", "/1/messages.json",
     "message": "hello world",
   }), { "Content-type": "application/x-www-form-urlencoded" })
 conn.getresponse()
+conn.close()
 
 

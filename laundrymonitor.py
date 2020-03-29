@@ -137,6 +137,7 @@ def SendNofitication( message ):
         }), { "Content-type": "application/x-www-form-urlencoded" })
         conn.getresponse()
         #print("notification sent")
+        conn.close()
     return;
         
 
