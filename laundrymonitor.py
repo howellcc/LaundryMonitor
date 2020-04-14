@@ -13,6 +13,8 @@ PUSHOVERAPITOKEN = ""
 PUSHOVERUSERKEY = ""
 PREVIOUSLIGHTSTATE = False
 LIGHTFIRSTNOTICED = datetime.MINYEAR
+LASTNOTIFICATIONSENT = datetime.datetime.now()
+REMINDERSSENT = 0
 
 
 def Main():
@@ -32,7 +34,13 @@ def Main():
     except:
         #load failed, likely because the file didn't exist. Create it so it can be filled.
         poCredsFile = open(settingsFile,"w+")
-        poCredsFile.write("{\r\n    \"PUSHOVERUSERKEY\":\"\",\r\n    \"PUSHOVERAPITOKEN\": \"\"\r\n}")
+        poCredsFile.write("{\r\n    \"PUSHOVERUSERKEY\":\"\",\r\n")
+        poCredsFile.write("    \"PUSHOVERAPITOKEN\": \"\",\r\n")
+        poCredsFile.write("    \"QUIETHOURSSTART\": \"22:00\",\r\n")
+        poCredsFile.write("    \"QUIETHOURSEND\": \"7:00\",\r\n")
+        poCredsFile.write("    \"MINUTESBETWEENREMINDERS\": \"15\",\r\n")
+        poCredsFile.write("    \"MAXNUMBEROFREMINDERS\": \"10\"\r\n")
+        poCredsFile.write("}")
         poCredsFile.close()
         print("Pushover credentials file didn't exist, please fill in.")
         return;
