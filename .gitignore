@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 # my stuff
-pushovercredentials.py
-pushovercredentials.json
+laundrymonitorconfig.json
 nohup.out

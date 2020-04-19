@@ -23,7 +23,7 @@ def Main():
     global PUSHOVERUSERKEY
     global SECONDSBETWEENCHECKS
     
-    settingsFile = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + "/pushovercredentials.json"
+    settingsFile = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + "/laundrymonitorconfig.json"
     #import pushover credentials from outside file. 
     try:
         #read json file and load credentials
