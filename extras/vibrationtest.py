@@ -1,4 +1,4 @@
-import datetime
+import datetime, time
 import RPi.GPIO as GPIO
 
 #GLOBALS
@@ -26,7 +26,7 @@ def MonitorTheDryer():
     
     current_time = datetime.datetime.now()
     timeDelta = current_time - LAST_VIBRATION_TIME
-    if(timeDelta.total_seconds() > 120): #has it stopped vibrating for 120 sec. 
+    if(timeDelta.total_seconds() > 30): #has it stopped vibrating for 30 sec. 
         ISVIBRATING = False
 
     if(ISVIBRATING):
@@ -40,12 +40,12 @@ def Main():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.add_event_detect(SENSOR_PIN, GPIO.RISING)
-    GPIO.add_event_callback(SENSOR_PIN, VibrationCallback(x))
+    GPIO.add_event_callback(SENSOR_PIN, VibrationCallback)
 
     #Time to get down to business
     while(1):
         MonitorTheDryer()
-        datetime.time.sleep(10)
+        time.sleep(10)
     return;
     
 
