@@ -1,13 +1,11 @@
-import datetime, time
+import datetime
 import RPi.GPIO as GPIO
 
 #GLOBALS
 ISVIBRATING = False
-LAST_VIBRATION_TIME = datetime.datetime.now()
-START_VIBRATION_TIME = datetime.datetime.now()
+LAST_VIBRATION_TIME = datetime.datetime(9999,1,1,0,0,0)
+START_VIBRATION_TIME = datetime.MINYEAR
 SENSOR_PIN = 14
-
-
 
 def VibrationCallback(x):
     global ISVIBRATING
@@ -22,22 +20,19 @@ def VibrationCallback(x):
 def MonitorTheDryer():
     "This function monitors the dryer."
 
-    current_time = time.time()
     global ISVIBRATING
     global LAST_VIBRATION_TIME
     global START_VIBRATION_TIME
     
-    ISVIBRATING = current_time - LAST_VIBRATION_TIME < 2
+    current_time = datetime.datetime.now()
+    timeDelta = current_time - LAST_VIBRATION_TIME
+    if(timeDelta.total_seconds() > 120): #has it stopped vibrating for 120 sec. 
+        ISVIBRATING = False
 
-
-    #global ISVIBRATING
-    #if(ISVIBRATING):
-        #figure out if we should actually send a notification
-        #Have we already notified
-        #Do we need to notify again
-        #Are we outside of quiet hours?
-        #SendNofitication("The Dryer is Done!!!")
-        #print("its vibrating")
+    if(ISVIBRATING):
+        print("its vibrating")
+    else:
+        print("it stopped")
     return
 
 def Main():
@@ -50,7 +45,7 @@ def Main():
     #Time to get down to business
     while(1):
         MonitorTheDryer()
-        time.sleep(10)
+        datetime.time.sleep(10)
     return;
     
 
