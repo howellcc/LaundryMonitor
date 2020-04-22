@@ -1,0 +1,11 @@
+[Unit]
+Description=Laundry Monitor
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/{userDir}/LaundryMonitor/laundrymonitor.py > /home/{userDir}/laundrymonitor.log 2>&1
+
+[Install]
+WantedBy=multi-user.target
+
