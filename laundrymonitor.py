@@ -5,6 +5,7 @@ import json
 import smbus
 import http.client, urllib
 import inspect, os
+import RPi.GPIO as GPIO
 
 #GLOBALS
 SECONDSBETWEENCHECKS = 10
@@ -15,6 +16,10 @@ PREVIOUSLIGHTSTATE = False
 LIGHTFIRSTNOTICED = datetime.MINYEAR
 LASTNOTIFICATIONSENT = datetime.datetime.now()
 REMINDERSSENT = 0
+DRYER_ISVIBRATING = False
+DRYER_LAST_VIBRATION_TIME = datetime.datetime(9999,1,1,0,0,0)
+DRYER_STOP_TIME_THRESHOLD_SEC = 30
+DRYER_SENSOR_PIN = 14
 
 
 def Main():
@@ -49,6 +54,8 @@ def Main():
     if(len(PUSHOVERAPITOKEN) == 0 or len(PUSHOVERUSERKEY) == 0):
         print("Pushover credentials are empty")
         return
+    
+    SetupDryer()
 
     #Time to get down to business
     while(1):
@@ -57,6 +64,31 @@ def Main():
         time.sleep(SECONDSBETWEENCHECKS)
     return;
 
+def SetupDryer():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(DRYER_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(DRYER_SENSOR_PIN, GPIO.RISING)
+    GPIO.add_event_callback(DRYER_SENSOR_PIN, DryerSensorCallback)
+
+def DryerSensorCallback(x):
+    global DRYER_ISVIBRATING
+    global DRYER_LAST_VIBRATION_TIME
+    DRYER_LAST_VIBRATION_TIME = datetime.datetime.now()
+    DRYER_ISVIBRATING = True
+
+def MonitorTheDryer():
+    "This function monitors the dryer."
+    global DRYER_ISVIBRATING
+    global DRYER_LAST_VIBRATION_TIME
+    global DRYER_STOP_TIME_THRESHOLD_SEC
+    
+    current_time = datetime.datetime.now()
+    timeDelta = current_time - DRYER_LAST_VIBRATION_TIME
+    if(timeDelta.total_seconds() > DRYER_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
+        DRYER_ISVIBRATING = False
+        SendNofitication("Dryer is Done!!!")
+    return
 
 def MonitorTheWashingMachine():
     "This function monitors the washing machine."
@@ -65,26 +97,12 @@ def MonitorTheWashingMachine():
     global PREVIOUSLIGHTSTATE
 
     currentLightState = IsWasherDone()
-    #print("previous light state: ",PREVIOUSLIGHTSTATE)
-    #print("current light state: ",currentLightState)
     if(PREVIOUSLIGHTSTATE == False and currentLightState):
-        #print("I should notify")
         SendNofitication("Washer is Done!!!")
         LIGHTFIRSTNOTICED = datetime.datetime.now
-    #else if()
-    #TODO HERE
     PREVIOUSLIGHTSTATE = currentLightState
     return;
 
-def MonitorTheDryer():
-    "This function monitors the dryer."
-    if(IsDryerDone()):
-        #figure out if we should actually send a notification
-        #Have we already notified
-        #Do we need to notify again
-        #Are we outside of quiet hours?
-        SendNofitication("The Dryer is Done!!!")
-    return;
 
 def IsWasherDone():
     "Checks the light"
@@ -129,11 +147,6 @@ def IsWasherDone():
     if(ch0 > LIGHTSENSORTHRESHOLD):
         currentLightState = True
     return currentLightState;
-
-def IsDryerDone():
-    "Check the vibration sensor. Return true if vibration has stopped"
-    #TODO check the vibration sensor
-    return False;
 
 def SendNofitication( message ):
     "Sends the Pushover notification"
