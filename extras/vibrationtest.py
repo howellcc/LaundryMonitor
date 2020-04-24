@@ -2,31 +2,31 @@ import datetime, time
 import RPi.GPIO as GPIO
 
 #GLOBALS
-ISVIBRATING = False
-LAST_VIBRATION_TIME = datetime.datetime(9999,1,1,0,0,0)
-VIBRATION_STOP_TIME_THRESHOLD_SEC = 30
+DRYER_ISVIBRATING = False
+DRYER_LAST_VIBRATION_TIME = datetime.datetime(9999,1,1,0,0,0)
+DRYER_STOP_TIME_THRESHOLD_SEC = 30
 DRYER_SENSOR_PIN = 14
 
 def VibrationCallback(x):
-    global ISVIBRATING
-    global LAST_VIBRATION_TIME
+    global DRYER_ISVIBRATING
+    global DRYER_LAST_VIBRATION_TIME
     
-    LAST_VIBRATION_TIME = datetime.datetime.now()
-    ISVIBRATING = True
+    DRYER_LAST_VIBRATION_TIME = datetime.datetime.now()
+    DRYER_ISVIBRATING = True
 
 def MonitorTheDryer():
     "This function monitors the dryer."
 
-    global ISVIBRATING
-    global LAST_VIBRATION_TIME
-    global VIBRATION_STOP_TIME_THRESHOLD_SEC
+    global DRYER_ISVIBRATING
+    global DRYER_LAST_VIBRATION_TIME
+    global DRYER_STOP_TIME_THRESHOLD_SEC
     
     current_time = datetime.datetime.now()
-    timeDelta = current_time - LAST_VIBRATION_TIME
-    if(timeDelta.total_seconds() > VIBRATION_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
-        ISVIBRATING = False
+    timeDelta = current_time - DRYER_LAST_VIBRATION_TIME
+    if(timeDelta.total_seconds() > DRYER_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
+        DRYER_ISVIBRATING = False
 
-    if(ISVIBRATING):
+    if(DRYER_ISVIBRATING):
         print("its vibrating")
     else:
         print("it stopped")
