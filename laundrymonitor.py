@@ -85,7 +85,7 @@ def MonitorTheDryer():
     
     current_time = datetime.datetime.now()
     timeDelta = current_time - DRYER_LAST_VIBRATION_TIME
-    if(timeDelta.total_seconds() > DRYER_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
+    if(DRYER_ISVIBRATING and timeDelta.total_seconds() > DRYER_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
         DRYER_ISVIBRATING = False
         SendNofitication("Dryer is Done!!!")
     return
