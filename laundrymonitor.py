@@ -19,7 +19,8 @@ REMINDERSSENT = 0
 DRYER_ISVIBRATING = False
 DRYER_VIBRATION_STARTTIME = datetime.datetime(2000,1,1,0,0,0)
 DRYER_LAST_VIBRATION_TIME = datetime.datetime(9999,1,1,0,0,0)
-DRYER_STOP_TIME_THRESHOLD_SEC = 120
+DRYER_STOP_TIME_THRESHOLD_SEC = 60
+DRYER_MIN_RUNTIME_THRESHOLD_SEC = 60 * 5
 DRYER_SENSOR_PIN = 14
 
 
@@ -88,13 +89,14 @@ def MonitorTheDryer():
     global DRYER_LAST_VIBRATION_TIME
     global DRYER_VIBRATION_STARTTIME
     global DRYER_STOP_TIME_THRESHOLD_SEC
+    global DRYER_MIN_RUNTIME_THRESHOLD_SEC
     
     current_time = datetime.datetime.now()
     howLongSinceIStopped = (current_time - DRYER_LAST_VIBRATION_TIME).total_seconds()
     howLongWasIRunning = (DRYER_LAST_VIBRATION_TIME - DRYER_VIBRATION_STARTTIME).total_seconds()
     if(DRYER_ISVIBRATING and howLongSinceIStopped > DRYER_STOP_TIME_THRESHOLD_SEC): #has it stopped vibrating for threshold. 
         DRYER_ISVIBRATING = False
-        if(howLongWasIRunning > DRYER_STOP_TIME_THRESHOLD_SEC):
+        if(howLongWasIRunning > DRYER_MIN_RUNTIME_THRESHOLD_SEC):
             SendNofitication("Dryer is Done!!!")
     return
 
